@@ -12,6 +12,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../include/image.h"
+#include "../include/point.h"
+#include "../include/type_obj.h"
+
+
 /**
  * @author LEMOINE Benoît <benoit.lemoine@ecole.ensicaen.fr>
  * @version 0.0.1 / 10-12-2017
@@ -21,21 +26,43 @@
  * @file moments.c
  */
 
+ /* types a priori prive a image */
+ typedef unsigned char Comp_rgb;
+ typedef int (*PFsauvegarde)(image,FILE*);
+
+ struct image
+ {
+
+   Comp_rgb *  debut;
+   Comp_rgb *  courant;
+   int         hauteur;
+   int         largeur;
+   int         longueur;/* nb de cellules d'une ligne : Largeur*Dim */
+   long        taille; /* nb de cellules de l'image */
+   int         dim; /* dimension de l'image 1 ou 3 */
+   PFdist      distance; /* Fonction de distance inter pixel*/
+ };
+
+ #define Debut     SELF(debut)
+ #define Courant   SELF(courant)
+ #define Largeur   SELF(largeur)
+ #define Hauteur   SELF(hauteur)
+ #define Longueur  SELF(longueur)
+ #define Taille    SELF(taille)
+ #define Distance  SELF(distance)
+ #define Dim       SELF(dim)
+
 #define R atoi(Courant[0])
 #define G atoi(Courant[1])
 #define B atoi(Courant[2])
 
+void blck_first_pixel (image self, int blck_num, int n, int m, point p) {
 
-int* blck_first_pixel (image self, int blck_num, int n, int m) {
 
-    int pos[2];
+    if (n*m > blck_num) return;
 
-    if (n*m > blck_num) return NULL;
-
-    pos[0] = ((int) (blck_num - 1)/n) * Hauteur / m;
-    pos[1] = ((blck_num - 1) % n) * Largeur / n;
-
-    return pos;
+    p->coordx = ((int) (blck_num - 1)/n) * Hauteur / m;
+    p->coordy= ((blck_num - 1) % n) * Largeur / n;
 }
 
 
@@ -49,22 +76,27 @@ int* m_zero, int* m_one, int* m_two) {
 
     /* Calculating coordonates of first point of the block */
 
-    COORDX(p) = blck_first_pixel(self, blck_num, n, m)[0];
-    COORDY(p) = blck_first_pixel(self, blck_num, n, m)[1];
+    blck_first_pixel(self, blck_num, n, m, p);
 
     image_move_to(self,p);
 
     /* Initializing moments */
 
-    m_zero = Largeur/n * Hauteur/m;
-    m_one  = 0;
-    m_two  = 0;
+    m_zero[0] = Largeur/n * Hauteur/m;
+
+    m_one[0]  = 0;
+    m_one[1]  = 0;
+    m_one[2]  = 0;
+
+    m_two[0]  = 0;
+    m_two[1]  = 0;
+    m_two[2]  = 0;
 
     /* Gray levels image */
 
     if (Dim == 1) {
 
-        for (i = 1; i > m_zero; i++) {
+        for (i = 1; i > m_zero[0]; i++) {
 
             m_one[0] += R;
 
@@ -88,7 +120,7 @@ int* m_zero, int* m_one, int* m_two) {
 
     if (Dim == 2) {
 
-        for (i = 1; i > m_zero; i++) {
+        for (i = 1; i > m_zero[0]; i++) {
 
             m_one[0] += R;
             m_one[1] += G;
