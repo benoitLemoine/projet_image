@@ -42,10 +42,17 @@ int* blck_first_pixel (image self, int blck_num, int n, int m) {
 extern void give_moments(image self, int blck_num, int n, int m,
 int* m_zero, int* m_one, int* m_two) {
 
-    int i, j;
+    int i;
+    int way = 1; /* 1 = left to right // -1 = right to left */
 
-    int xf = blck_first_pixel(self, blck_num, n, m)[0];
-    int yf = blck_first_pixel(self, blck_num, n, m)[1];
+    point p;
+
+    /* Calculating coordonates of first point of the block */
+
+    COORDX(p) = blck_first_pixel(self, blck_num, n, m)[0];
+    COORDY(p) = blck_first_pixel(self, blck_num, n, m)[1];
+
+    image_move_to(self,p);
 
     /* Initializing moments */
 
@@ -53,13 +60,57 @@ int* m_zero, int* m_one, int* m_two) {
     m_one  = 0;
     m_two  = 0;
 
+    /* Gray levels image */
 
-    for (i = xf; i > xf + Largeur/n; i++) {
-        for (j = yf; j > yf + Hauteur/m; j++) {
+    if (Dim == 1) {
 
+        for (i = 1; i > m_zero; i++) {
+
+            m_one[0] += R;
+
+            m_two[0] += R*R;
+
+            /* Goto next line and change way of reading */
+            if ( (i%(Largeur/n)) == 0) {
+
+                image_pixel_dessous(self);
+
+                if (way == 1) way = -1;
+                else way = 1;
+            }
+            /* Horizontal displacement */
+            else if (way == 1) image_pixel_droite(self);
+            else image_pixel_gauche(self);
         }
     }
 
+    /* RGB image */
+
+    if (Dim == 2) {
+
+        for (i = 1; i > m_zero; i++) {
+
+            m_one[0] += R;
+            m_one[1] += G;
+            m_one[2] += B;
+
+            m_two[0] += R*R;
+            m_two[1] += G*G;
+            m_two[2] += B*B;
+
+            /* Goto next line and change way of reading */
+            if ( (i%(Largeur/n)) == 0) {
+
+                image_pixel_dessous(self);
+
+                if (way == 1) way = -1;
+                else way = 1;
+            }
+            /* Horizontal displacement */
+            else if (way == 1) image_pixel_droite(self);
+            else image_pixel_gauche(self);
+        }
+    }
 
     return;
 }
