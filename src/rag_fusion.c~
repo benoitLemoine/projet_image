@@ -136,40 +136,33 @@ void RAG_merge_moments(RAG* rag, int b1, int b2) {
 
 void RAG_merge_neighbors(RAG* rag, int b1, int b2) {
 
-   /* !!!!! VERIFY IF IT WORKS (CARE ABOUT ADDRESSES !!!!! */
-   
-  cellule *cel1, *cel2, *buf1, *buf2;
+  cellule cel1, cel2;
   int n;
-
-  cel1 = rag->neighbors[b1];
+  
   cel2 = rag->neighbors[b2];
 
-  /* Fusion of the lists of neighbors */
+  /* Go to the last neighbor of b2 */
   
-  while (cel1 != NULL && cel2 != NULL) {
+  while (cel2 != NULL) {
 
-     /* b2 is the neighbor of b1 */
-     
-     if (cel1.block == b2) {
+    /* Saves number of last block in the list of neighbors  */
+    
+    n = cel2.block;
+    cel2 = cel2.next;
+  }
 
-	cel1 = cel1.next;
-     }
-     
-     else if (cel1.block < cel2.block) {
+  /* Go to first neighbor of b1 */
+  
+  cel1 = rag->neighbors[b1];
 
-	/* Add new neighbor to the list */
-	
-	buf1 = cel1;
-	buf2 = cel2;
-	
-	&cel2 = &buf1;
-	buf1.next = &buf2;
+  while (cel1 != NULL) {
 
-	/* Go to next neighbors of b1 */
+    /* Doesn't put b2 as a neighbor of b2 */
 
-	cel1 = cel1.next
-     }
+    if (cel1.block != b2) {
 
-     cel2 = cel2.next;
+      rag->neighbors[n].block = cel1.block;
+      rag->neighbors[n].next = cel1.next;
+    }
   }
 } 
