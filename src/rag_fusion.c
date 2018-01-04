@@ -30,7 +30,7 @@ extern double RAG_give_closest_region(RAG rag, int* b1, int* b2) {
   int ffirst = 1;
 
   cellule cel;
-  
+
   int M0, M0b;
   double* M1, M1b;
 
@@ -38,17 +38,17 @@ extern double RAG_give_closest_region(RAG rag, int* b1, int* b2) {
 
   double err;
   double errMin;
-  
+
   for (i = 1; i < rag.nb_blocks; i++) {
     if (rag.father[i] == i) {
 
       /* Saving moments of first block */
-      
+
       M0 = rag.m[i].M0;
       M1 = rag.m[i].M1;
 
       /* Saving address of current neighbor */
-      
+
       cel = rag.neighbors[i];
 
       while (cel != NULL) {
@@ -57,16 +57,16 @@ extern double RAG_give_closest_region(RAG rag, int* b1, int* b2) {
 	if (father[n] == n) {
 
 	  /* Saving moments of neighbor */
-	  
+
 	  M0b = rag.m[n].M0;
 	  M1b = rag.m[n].M1;
 
 	  /* Computing error */
-	  
-	  err = error(M0, M0b, M1, M1b, dim);
+
+	  err = computeError(M0, M0b, M1, M1b, dim);
 
 	  /* Saving this error as the minimum one if first occurence or if lesser */
-	  
+
 	  if (errMin > err || ffirst == 1) {
 	    errMin = err;
 	    ffirst = 0;
@@ -84,11 +84,11 @@ extern double RAG_give_closest_region(RAG rag, int* b1, int* b2) {
 }
 
 
-double error (int M0, int M0b, double* M1, double* M1b, int dim) {
+double computeError (int M0, int M0b, double* M1, double* M1b, int dim) {
 
   double err = 0;
   int k;
-  
+
   err = (M0 * M0b)/(M0 + M0b);
 
   for (k = 0; k < dim; k++) {
@@ -116,12 +116,14 @@ void RAG_merge_region(RAG* rag, int b1, int b2) {
 
   /* Update neighbor */
 
+  RAG_merge_neighbors(rag, b1, b2);
+
 }
 
 
 void RAG_merge_moments(RAG* rag, int b1, int b2) {
 
-  int dim = image_give_dim(rag.im); 
+  int dim = image_give_dim(rag.im);
   int k;
 
   rag->moment[b2].M0 += rag->moment[b1].M0;
@@ -136,33 +138,40 @@ void RAG_merge_moments(RAG* rag, int b1, int b2) {
 
 void RAG_merge_neighbors(RAG* rag, int b1, int b2) {
 
-  cellule cel1, cel2;
+   /* !!!!! VERIFY IF IT WORKS (CARE ABOUT ADDRESSES !!!!! */
+
+  cellule *cel1, *cel2, *buf1, *buf2;
   int n;
-  
+
+  cel1 = rag->neighbors[b1];
   cel2 = rag->neighbors[b2];
 
-  /* Go to the last neighbor of b2 */
-  
-  while (cel2 != NULL) {
+  /* Fusion of the lists of neighbors */
 
-    /* Saves number of last block in the list of neighbors  */
-    
-    n = cel2.block;
-    cel2 = cel2.next;
+  while (cel1 != NULL && cel2 != NULL) {
+
+     /* b2 is the neighbor of b1 */
+
+     if (cel1.block == b2) {
+
+	cel1 = cel1.next;
+     }
+
+     else if (cel1.block < cel2.block) {
+
+	/* Add new neighbor to the list */
+
+	buf1 = cel1;
+	buf2 = cel2;
+
+	&cel2 = &buf1;
+	buf1.next = &buf2;
+
+	/* Go to next neighbors of b1 */
+
+	cel1 = cel1.next
+     }
+
+     cel2 = cel2.next;
   }
-
-  /* Go to first neighbor of b1 */
-  
-  cel1 = rag->neighbors[b1];
-
-  while (cel1 != NULL) {
-
-    /* Doesn't put b2 as a neighbor of b2 */
-
-    if (cel1.block != b2) {
-
-      rag->neighbors[n].block = cel1.block;
-      rag->neighbors[n].next = cel1.next;
-    }
-  }
-} 
+}
