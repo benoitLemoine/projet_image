@@ -27,24 +27,22 @@
 void testSmallImage() {
 
    int i,j;
-<<<<<<< HEAD
-=======
+
    unsigned char* comp;
    
->>>>>>> rag_fusion
    int m_zero = 0;
    double m_one[3] = {0,0,0};
    double m_two[3] = {0,0,0};
 
    image img;
    img = FAIRE_image();
-<<<<<<< HEAD
+
    image_charger(img,"../img/lenna.ppm");
 
    give_moments(img, 2, 2, 2, &m_zero, m_one, m_two);
 
    printf("M0: %d  // M1: %d  // M2: %d", m_zero, m_one, m_two);
-=======
+
    image_initialize(img,1,8,8);
 
    for (i = 0; i < 8; i++) {
@@ -66,7 +64,6 @@ void testSmallImage() {
    }
 
    printf("Moments on gray level image failed\n");
->>>>>>> rag_fusion
 }
 
 
