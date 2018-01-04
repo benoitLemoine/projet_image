@@ -44,6 +44,10 @@ $(POBJ)/image.o : $(PSRC)/image.c
 clean :
 	-rm  $(PSRC)/*.o
 	-rm  $(PSRC)/*~
+<<<<<<< HEAD
+=======
+	-rm $(POBJ)/*.o	
+>>>>>>> rag_fusion
 
 .PHONY : distclean
 distclean : clean
