@@ -171,4 +171,5 @@ void RAG_merge_neighbors(RAG* rag, int b1, int b2) {
 
 	cel1 = cel1.next
      }
+cel2 = cel2.next;	
 }
