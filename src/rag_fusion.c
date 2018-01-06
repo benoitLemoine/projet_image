@@ -171,30 +171,4 @@ void RAG_merge_neighbors(RAG* rag, int b1, int b2) {
 
 	cel1 = cel1.next
      }
-
-  while (cel1 != NULL && cel2 != NULL) {
-
-     /* b2 is the neighbor of b1 */
-     
-     if (cel1.block == b2) {
-
-	cel1 = cel1.next;
-     }
-     
-     else if (cel1.block < cel2.block) {
-
-	/* Add new neighbor to the list */
-	
-	buf1 = cel1;
-	buf2 = cel2;
-	
-	&cel2 = &buf1;
-	buf1.next = &buf2;
-
-	/* Go to next neighbors of b1 */
-
-	cel1 = cel1.next
-     }
-     cel2 = cel2.next;
-  }
 }
